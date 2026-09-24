@@ -3,8 +3,7 @@
 import time
 
 from . import crypto
-from .config import (GENESIS_PREV_HASH, BLOCK_INTERVAL_SCALE,
-                     BLOCK_TX_COUNT_EXCLUDE_COINBASE)
+from .config import GENESIS_PREV_HASH, BLOCK_INTERVAL_SCALE
 from .merkle import merkle_root
 from .storage import canonical_json
 
@@ -108,12 +107,13 @@ class Block:
         return (self.timestamp - other.timestamp) * BLOCK_INTERVAL_SCALE
 
     def display_tx_count(self):
-        """Number of transactions shown for this block in the UI."""
-        count = len(self.transactions)
-        if self.transactions and self.transactions[0].is_coinbase() \
-                and BLOCK_TX_COUNT_EXCLUDE_COINBASE:
-            count -= 1
-        return count
+        """Number of transactions shown for this block in the UI.
+
+        The coinbase reward is a real transaction (it is included in the
+        Merkle tree, the block header ``tx_count`` and the chain-wide
+        totals), so it must be counted here as well.
+        """
+        return len(self.transactions)
 
     # ------------------------------------------------------------------ #
     # Proof-of-Work
